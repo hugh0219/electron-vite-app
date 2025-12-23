@@ -15,8 +15,8 @@ const goHome = () => {
     <div class="max-w-4xl mx-auto">
       <!-- Back Button -->
       <button
-        @click="goHome"
         class="mb-8 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold inline-flex items-center gap-2"
+        @click="goHome"
       >
         ← Back to Home
       </button>
@@ -29,9 +29,9 @@ const goHome = () => {
           <section>
             <h2 class="text-2xl font-bold text-indigo-600 mb-3">🎯 Project Overview</h2>
             <p>
-              {{ appStore.appTitle }} is an Electron application built with modern web technologies. This project
-              demonstrates best practices for building desktop applications with Vue 3, TypeScript, and a complete
-              development toolchain.
+              {{ appStore.appTitle }} is an Electron application built with modern web technologies.
+              This project demonstrates best practices for building desktop applications with Vue 3,
+              TypeScript, and a complete development toolchain.
             </p>
           </section>
 
@@ -72,9 +72,7 @@ const goHome = () => {
 
           <section>
             <h2 class="text-2xl font-bold text-indigo-600 mb-3">📦 Project Structure</h2>
-            <pre
-              class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"
-            ><code>src/
+            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>src/
 ├── main/              # Main process (Electron)
 ├── preload/           # Preload scripts
 └── renderer/
@@ -91,8 +89,8 @@ const goHome = () => {
         <!-- Back to Home Button -->
         <div class="mt-8 text-center">
           <button
-            @click="goHome"
             class="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold"
+            @click="goHome"
           >
             🏠 Back to Home
           </button>
@@ -107,4 +105,3 @@ pre {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 </style>
-

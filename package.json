@@ -24,8 +24,8 @@
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "electron-updater": "^6.3.9",
-    "vue-router": "^4.4.0",
-    "pinia": "^2.1.7"
+    "pinia": "^3.0.4",
+    "vue-router": "^4.4.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "3.0.0",

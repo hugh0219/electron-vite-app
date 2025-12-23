@@ -22,4 +22,3 @@ export const useAppStore = defineStore('app', () => {
     setAppTitle
   }
 })
-
