@@ -3,8 +3,8 @@ import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-rou
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('../views/Home.vue')
+    name: 'MouseControl',
+    component: () => import('../views/MouseControl.vue')
   },
   {
     path: '/about',

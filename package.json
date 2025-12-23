@@ -23,6 +23,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
+    "@nut-tree/nut-js": "^4.2.0",
     "electron-updater": "^6.3.9",
     "pinia": "^3.0.4",
     "vue-router": "^4.4.0"
