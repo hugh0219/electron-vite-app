@@ -24,6 +24,19 @@ export class MouseController {
   private timers: Map<string, NodeJS.Timeout> = new Map()
 
   /**
+   * 获取当前全局鼠标位置（屏幕坐标）
+   */
+  async getCurrentPosition(): Promise<{ x: number; y: number }> {
+    try {
+      const pos = await mouse.getPosition()
+      return { x: pos.x, y: pos.y }
+    } catch (error) {
+      console.error('获取鼠标位置失败:', error)
+      throw error
+    }
+  }
+
+  /**
    * 移动鼠标到指定位置
    */
   async moveToPosition(x: number, y: number, duration: number = 500): Promise<void> {

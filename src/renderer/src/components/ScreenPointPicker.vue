@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { watch, onUnmounted } from 'vue'
 
 interface Point {
   x: number
@@ -11,7 +11,7 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     isActive?: boolean
   }>(),
@@ -20,69 +20,131 @@ withDefaults(
   }
 )
 
-const cursorPos = ref<Point>({ x: 0, y: 0 })
-const overlay = ref<HTMLDivElement | null>(null)
-
-const handleMouseMove = (e: MouseEvent) => {
-  cursorPos.value = { x: Math.round(e.clientX), y: Math.round(e.clientY) }
+// 监听全屏选点窗口返回的点
+const handlePointPicked = (point: { x: number; y: number }) => {
+  console.log('[ScreenPointPicker] 收到选点:', point)
+  // 清理监听器
+  cleanupListeners()
+  // 发送事件给父组件
+  emit('pointSelected', { x: point.x, y: point.y })
 }
 
-const handleClick = (e: MouseEvent) => {
-  e.preventDefault()
-  e.stopPropagation()
+// 监听取消事件
+const handlePickerCancelled = () => {
+  console.log('[ScreenPointPicker] 收到取消事件')
+  // 清理监听器
+  cleanupListeners()
+  // 发送取消事件给父组件
+  emit('cancel')
+}
 
-  const point: Point = {
-    x: Math.round(e.clientX),
-    y: Math.round(e.clientY)
+// 等待 API 可用的辅助函数
+const waitForAPI = (maxAttempts = 10, delay = 100): Promise<boolean> => {
+  return new Promise((resolve) => {
+    let attempts = 0
+    const checkAPI = () => {
+      // 使用类型断言来检查运行时是否存在
+      const api = window.api
+      // 详细检查每个属性
+      const mouseObj = api?.mouse
+      const hasOnPointPicked = mouseObj && typeof mouseObj.onPointPicked === 'function'
+      const hasOnPickerCancelled = mouseObj && typeof mouseObj.onPickerCancelled === 'function'
+      const hasOpenPicker = mouseObj && typeof mouseObj.openPicker === 'function'
+
+      // 第一次检查时输出详细信息
+      if (attempts === 0) {
+        console.log('[ScreenPointPicker] API 检查:', {
+          hasApi: !!api,
+          hasMouse: !!mouseObj,
+          mouseKeys: mouseObj ? Object.keys(mouseObj) : [],
+          hasOnPointPicked,
+          hasOnPickerCancelled,
+          hasOpenPicker
+        })
+      }
+
+      if (hasOnPointPicked && hasOnPickerCancelled && hasOpenPicker) {
+        resolve(true)
+      } else if (attempts < maxAttempts) {
+        attempts++
+        setTimeout(checkAPI, delay)
+      } else {
+        console.error('API 检查失败:', {
+          hasWindow: typeof window !== 'undefined',
+          hasApi: !!api,
+          hasMouse: !!(api && api.mouse),
+          hasOnPointPicked,
+          hasOnPickerCancelled,
+          hasOpenPicker
+        })
+        resolve(false)
+      }
+    }
+    checkAPI()
+  })
+}
+
+// 清理监听器的辅助函数
+const cleanupListeners = () => {
+  if (window.api?.mouse?.removePointPickedListener) {
+    try {
+      window.api.mouse.removePointPickedListener()
+    } catch (error) {
+      console.error('清理监听器失败:', error)
+    }
   }
-
-  emit('pointSelected', point)
 }
 
-const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') {
-    emit('cancel')
-  }
-}
+// 当激活时，打开全屏选点窗口
+watch(
+  () => props.isActive,
+  async (isActive) => {
+    if (isActive) {
+      // 先清理之前的监听器（如果有）
+      cleanupListeners()
 
-onMounted(() => {
-  document.addEventListener('mousemove', handleMouseMove)
-  document.addEventListener('keydown', handleKeyDown)
-})
+      // 等待 API 可用
+      const apiReady = await waitForAPI()
+      if (!apiReady) {
+        console.error('API 不可用，请确保预加载脚本已正确加载')
+        emit('cancel')
+        return
+      }
+
+      // 设置监听器
+      try {
+        window.api.mouse.onPointPicked(handlePointPicked)
+        window.api.mouse.onPickerCancelled(handlePickerCancelled)
+      } catch (error) {
+        console.error('设置监听器失败:', error)
+        emit('cancel')
+        return
+      }
+
+      // 打开全屏选点窗口
+      try {
+        await window.api.mouse.openPicker()
+      } catch (error) {
+        console.error('打开选点窗口失败:', error)
+        cleanupListeners()
+        emit('cancel')
+      }
+    } else {
+      // 清理监听器
+      cleanupListeners()
+    }
+  },
+  { immediate: false }
+)
 
 onUnmounted(() => {
-  document.removeEventListener('mousemove', handleMouseMove)
-  document.removeEventListener('keydown', handleKeyDown)
+  // 清理监听器
+  cleanupListeners()
 })
 </script>
 
 <template>
-  <div
-    v-if="isActive"
-    ref="overlay"
-    class="fixed inset-0 z-50 bg-black bg-opacity-30 cursor-crosshair flex items-center justify-center"
-    @click="handleClick"
-  >
-    <!-- 十字准星 -->
-    <div
-      class="fixed w-8 h-8 pointer-events-none border-2 border-red-500 rounded-full"
-      :style="{ left: cursorPos.x - 16 + 'px', top: cursorPos.y - 16 + 'px' }"
-    >
-      <div class="absolute inset-1/2 w-1 h-1 bg-red-500 transform -translate-x-1/2 -translate-y-1/2"></div>
-    </div>
-
-    <!-- 坐标显示 -->
-    <div
-      class="fixed bg-gray-900 text-white px-3 py-1 rounded text-sm pointer-events-none"
-      :style="{ left: cursorPos.x + 20 + 'px', top: cursorPos.y + 20 + 'px' }"
-    >
-      X: {{ cursorPos.x }}, Y: {{ cursorPos.y }}
-    </div>
-
-    <!-- 提示文字 -->
-    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-      <div class="text-white text-3xl font-bold mb-4 drop-shadow-lg">点击选择目标位置</div>
-      <div class="text-white text-lg drop-shadow-lg">按 ESC 退出</div>
-    </div>
-  </div>
+  <!-- 全屏选点窗口由主进程管理，这里不需要显示任何内容 -->
+  <!-- 当 isActive 为 true 时，会打开全屏选点窗口 -->
+  <div style="display: none"></div>
 </template>

@@ -10,7 +10,19 @@ const api = {
     deleteTask: (id: string) => ipcRenderer.invoke('mouse:delete-task', id),
     runTask: (id: string) => ipcRenderer.invoke('mouse:run-task', id),
     clearTasks: () => ipcRenderer.invoke('mouse:clear-tasks'),
-    getStatus: () => ipcRenderer.invoke('mouse:get-status')
+    getStatus: () => ipcRenderer.invoke('mouse:get-status'),
+    getPosition: () => ipcRenderer.invoke('mouse:get-position'),
+    openPicker: () => ipcRenderer.invoke('open-picker'),
+    onPointPicked: (callback: (point: { x: number; y: number }) => void) => {
+      ipcRenderer.on('point-picked', (_event, point) => callback(point))
+    },
+    onPickerCancelled: (callback: () => void) => {
+      ipcRenderer.on('picker-cancelled', () => callback())
+    },
+    removePointPickedListener: () => {
+      ipcRenderer.removeAllListeners('point-picked')
+      ipcRenderer.removeAllListeners('picker-cancelled')
+    }
   }
 }
 
@@ -21,12 +33,28 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
+    // 调试信息：确认 API 已暴露
+    console.log('[Preload] API exposed:', {
+      hasApi: !!api,
+      hasMouse: !!api.mouse,
+      hasOpenPicker: typeof api.mouse.openPicker === 'function',
+      hasOnPointPicked: typeof api.mouse.onPointPicked === 'function',
+      hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function'
+    })
   } catch (error) {
-    console.error(error)
+    console.error('[Preload] Error exposing API:', error)
   }
 } else {
   // @ts-ignore (define in dts)
   window.electron = electronAPI
   // @ts-ignore (define in dts)
   window.api = api
+  // 调试信息：确认 API 已暴露
+  console.log('[Preload] API exposed (non-isolated):', {
+    hasApi: !!api,
+    hasMouse: !!api.mouse,
+    hasOpenPicker: typeof api.mouse.openPicker === 'function',
+    hasOnPointPicked: typeof api.mouse.onPointPicked === 'function',
+    hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function'
+  })
 }

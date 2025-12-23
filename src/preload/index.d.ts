@@ -34,6 +34,11 @@ declare global {
           completedTasks: number
           failedTasks: number
         }>
+        getPosition: () => Promise<{ x: number; y: number }>
+        openPicker: () => Promise<void>
+        onPointPicked: (callback: (point: { x: number; y: number }) => void) => void
+        onPickerCancelled: (callback: () => void) => void
+        removePointPickedListener: () => void
       }
     }
   }
