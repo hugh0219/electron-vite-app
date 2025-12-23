@@ -199,7 +199,7 @@ app.whenReady().then(() => {
   })
 
   // 屏幕选点 IPC
-  ipcMain.on('picker-selected', (event, point) => {
+  ipcMain.on('picker-selected', (_event, point) => {
     if (mainWindow) {
       mainWindow.webContents.send('point-picked', point)
     }

@@ -1,4 +1,5 @@
-import { mouse, screen } from '@nut-tree/nut-js'
+import { mouse } from '@nut-tree/nut-js'
+import { Button } from '@nut-tree/shared'
 
 export interface MouseTask {
   id: string
@@ -39,12 +40,12 @@ export class MouseController {
         const newX = Math.round(startX + (x - startX) * progress)
         const newY = Math.round(startY + (y - startY) * progress)
 
-        await mouse.moveTo({ x: newX, y: newY })
+        await mouse.setPosition({ x: newX, y: newY })
 
         if (currentStep < steps) {
           setTimeout(moveStep, 16)
         } else {
-          await mouse.moveTo({ x, y })
+          await mouse.setPosition({ x, y })
         }
       }
 
@@ -61,11 +62,11 @@ export class MouseController {
   async click(button: 'left' | 'right' | 'middle' = 'left'): Promise<void> {
     try {
       const buttonMap = {
-        left: 'left',
-        right: 'right',
-        middle: 'middle'
+        left: Button.LEFT,
+        right: Button.RIGHT,
+        middle: Button.MIDDLE
       }
-      await mouse.click(buttonMap[button] as any)
+      await mouse.click(buttonMap[button])
     } catch (error) {
       console.error('点击失败:', error)
       throw error
@@ -85,14 +86,14 @@ export class MouseController {
     try {
       await this.moveToPosition(fromX, fromY, duration / 2)
       
-      // 按下鼠标
-      await mouse.pressButton()
+      // 按下鼠标左键
+      await mouse.pressButton(Button.LEFT)
       
       // 移动到目标位置
       await this.moveToPosition(toX, toY, duration / 2)
       
-      // 释放鼠标
-      await mouse.releaseButton()
+      // 释放鼠标左键
+      await mouse.releaseButton(Button.LEFT)
     } catch (error) {
       console.error('拖拽失败:', error)
       throw error
@@ -104,17 +105,20 @@ export class MouseController {
    */
   async scroll(x: number, y: number, scrollX: number, scrollY: number): Promise<void> {
     try {
-      await mouse.moveTo({ x, y })
+      await mouse.setPosition({ x, y })
       
-      // 向下滚动（正数）或向上滚动（负数）
+      // 垂直滚动：向下滚动（正数）或向上滚动（负数）
       if (scrollY > 0) {
-        for (let i = 0; i < Math.abs(scrollY); i++) {
-          await mouse.scroll(-1)
-        }
+        await mouse.scrollDown(Math.abs(scrollY))
       } else if (scrollY < 0) {
-        for (let i = 0; i < Math.abs(scrollY); i++) {
-          await mouse.scroll(1)
-        }
+        await mouse.scrollUp(Math.abs(scrollY))
+      }
+      
+      // 水平滚动：向右滚动（正数）或向左滚动（负数）
+      if (scrollX > 0) {
+        await mouse.scrollRight(Math.abs(scrollX))
+      } else if (scrollX < 0) {
+        await mouse.scrollLeft(Math.abs(scrollX))
       }
     } catch (error) {
       console.error('滚动失败:', error)
