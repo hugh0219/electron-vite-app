@@ -4,7 +4,21 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   main: {},
-  preload: {},
+  preload: {
+    // 配置多个预加载文件入口
+    build: {
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'src/preload/index.ts'),
+          picker: resolve(__dirname, 'src/preload/picker.ts')
+        },
+        output: {
+          format: 'cjs',
+          entryFileNames: '[name].js'
+        }
+      }
+    }
+  },
   renderer: {
     resolve: {
       alias: {

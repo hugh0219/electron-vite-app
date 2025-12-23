@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router'
-import { ref } from 'vue'
 
 const router = useRouter()
-const showNav = ref(true)
 
 const isActive = (name: string) => {
   return router.currentRoute.value.name === name

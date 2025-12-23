@@ -107,7 +107,11 @@ const handleSubmit = () => {
   <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
     <h2 class="text-2xl font-bold mb-6 text-gray-900">{{ task ? '编辑任务' : '新建任务' }}</h2>
 
-    <ScreenPointPicker :is-active="isPointPickerActive" @point-selected="handlePointPicked" />
+    <ScreenPointPicker
+      :is-active="isPointPickerActive"
+      @point-selected="handlePointPicked"
+      @cancel="() => { isPointPickerActive = false }"
+    />
 
     <form class="space-y-6" @submit.prevent="handleSubmit">
       <!-- 任务描述 -->
