@@ -20,38 +20,22 @@ withDefaults(
   }
 )
 
-const selectedPoint = ref<Point | null>(null)
 const cursorPos = ref<Point>({ x: 0, y: 0 })
 const overlay = ref<HTMLDivElement | null>(null)
 
 const handleMouseMove = (e: MouseEvent) => {
-  cursorPos.value = { x: e.clientX, y: e.clientY }
+  cursorPos.value = { x: Math.round(e.clientX), y: Math.round(e.clientY) }
 }
 
 const handleClick = (e: MouseEvent) => {
   e.preventDefault()
   e.stopPropagation()
 
-  // 获取屏幕坐标
-  let screenX = e.clientX
-  let screenY = e.clientY
-
-  // 尝试从 electron 获取窗口位置以计算实际屏幕坐标
-  const getScreenCoords = async () => {
-    try {
-      const screenCoords = window.electron.ipcRenderer.invoke('get-window-bounds')
-      return screenCoords
-    } catch (e) {
-      return null
-    }
-  }
-
   const point: Point = {
-    x: Math.round(screenX),
-    y: Math.round(screenY)
+    x: Math.round(e.clientX),
+    y: Math.round(e.clientY)
   }
 
-  selectedPoint.value = point
   emit('pointSelected', point)
 }
 
@@ -62,18 +46,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
 }
 
 onMounted(() => {
-  if (overlay.value) {
-    overlay.value.addEventListener('mousemove', handleMouseMove)
-    overlay.value.addEventListener('click', handleClick)
-    document.addEventListener('keydown', handleKeyDown)
-  }
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
-  if (overlay.value) {
-    overlay.value.removeEventListener('mousemove', handleMouseMove)
-    overlay.value.removeEventListener('click', handleClick)
-  }
+  document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('keydown', handleKeyDown)
 })
 </script>
@@ -82,7 +60,8 @@ onUnmounted(() => {
   <div
     v-if="isActive"
     ref="overlay"
-    class="fixed inset-0 z-50 bg-black bg-opacity-30 cursor-crosshair"
+    class="fixed inset-0 z-50 bg-black bg-opacity-30 cursor-crosshair flex items-center justify-center"
+    @click="handleClick"
   >
     <!-- 十字准星 -->
     <div
@@ -102,9 +81,8 @@ onUnmounted(() => {
 
     <!-- 提示文字 -->
     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-      <div class="text-white text-2xl font-bold mb-4 drop-shadow-lg">点击选择目标位置</div>
+      <div class="text-white text-3xl font-bold mb-4 drop-shadow-lg">点击选择目标位置</div>
       <div class="text-white text-lg drop-shadow-lg">按 ESC 退出</div>
     </div>
   </div>
 </template>
-
