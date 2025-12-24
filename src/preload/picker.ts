@@ -7,6 +7,12 @@ const pickerAPI = {
     } catch (error) {
       console.error('[Picker] 发送 IPC 消息失败:', error)
     }
+  send: (channel: string, data?: any) => {
+    try {
+      ipcRenderer.send(channel, data)
+    } catch (error) {
+      console.error('[Picker] 发送 IPC 消息失败:', error)
+    }
   }
 }
 
