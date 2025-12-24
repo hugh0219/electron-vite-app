@@ -46,16 +46,7 @@ if (process.contextIsolated) {
       hasOnPointPicked: typeof api.mouse.onPointPicked === 'function',
       hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function'
     })
-    // 调试信息：确认 API 已暴露
-    console.log('[Preload] API exposed:', {
-      hasApi: !!api,
-      hasMouse: !!api.mouse,
-      hasOpenPicker: typeof api.mouse.openPicker === 'function',
-      hasOnPointPicked: typeof api.mouse.onPointPicked === 'function',
-      hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function'
-    })
   } catch (error) {
-    console.error('[Preload] Error exposing API:', error)
     console.error('[Preload] Error exposing API:', error)
   }
 } else {
@@ -63,14 +54,6 @@ if (process.contextIsolated) {
   window.electron = electronAPI
   // @ts-ignore (define in dts)
   window.api = api
-  // 调试信息：确认 API 已暴露
-  console.log('[Preload] API exposed (non-isolated):', {
-    hasApi: !!api,
-    hasMouse: !!api.mouse,
-    hasOpenPicker: typeof api.mouse.openPicker === 'function',
-    hasOnPointPicked: typeof api.mouse.onPointPicked === 'function',
-    hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function'
-  })
   // 调试信息：确认 API 已暴露
   console.log('[Preload] API exposed (non-isolated):', {
     hasApi: !!api,

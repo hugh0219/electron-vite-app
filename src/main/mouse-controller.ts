@@ -1,7 +1,5 @@
 import { mouse } from '@nut-tree/nut-js'
 import { Button } from '@nut-tree/shared'
-import { mouse } from '@nut-tree/nut-js'
-import { Button } from '@nut-tree/shared'
 
 export interface MouseTask {
   id: string
@@ -39,19 +37,6 @@ export class MouseController {
   }
 
   /**
-   * 获取当前全局鼠标位置（屏幕坐标）
-   */
-  async getCurrentPosition(): Promise<{ x: number; y: number }> {
-    try {
-      const pos = await mouse.getPosition()
-      return { x: pos.x, y: pos.y }
-    } catch (error) {
-      console.error('获取鼠标位置失败:', error)
-      throw error
-    }
-  }
-
-  /**
    * 移动鼠标到指定位置
    */
   async moveToPosition(x: number, y: number, duration: number = 500): Promise<void> {
@@ -69,12 +54,10 @@ export class MouseController {
         const newY = Math.round(startY + (y - startY) * progress)
 
         await mouse.setPosition({ x: newX, y: newY })
-        await mouse.setPosition({ x: newX, y: newY })
 
         if (currentStep < steps) {
           setTimeout(moveStep, 16)
         } else {
-          await mouse.setPosition({ x, y })
           await mouse.setPosition({ x, y })
         }
       }
@@ -95,11 +78,7 @@ export class MouseController {
         left: Button.LEFT,
         right: Button.RIGHT,
         middle: Button.MIDDLE
-        left: Button.LEFT,
-        right: Button.RIGHT,
-        middle: Button.MIDDLE
       }
-      await mouse.click(buttonMap[button])
       await mouse.click(buttonMap[button])
     } catch (error) {
       console.error('点击失败:', error)
@@ -143,7 +122,6 @@ export class MouseController {
 
       // 垂直滚动：向下滚动（正数）或向上滚动（负数）
       if (scrollY > 0) {
-        await mouse.scrollDown(Math.abs(scrollY))
         await mouse.scrollDown(Math.abs(scrollY))
       } else if (scrollY < 0) {
         await mouse.scrollUp(Math.abs(scrollY))
