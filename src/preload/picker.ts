@@ -16,4 +16,3 @@ try {
 } catch (error) {
   console.error('[Picker] 暴露 API 失败:', error)
 }
-

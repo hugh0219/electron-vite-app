@@ -57,182 +57,27 @@ function createPickerWindow(): void {
     transparent: true,
     alwaysOnTop: true,
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      preload: join(__dirname, '../preload/picker.js'),
-      devTools: true // 启用开发者工具以便调试
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false
     }
   })
 
-  // 创建简单的选点页面
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-        #overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.3);
-          cursor: crosshair;
-          z-index: 1000;
-        }
-        #crosshair {
-          position: fixed;
-          width: 30px;
-          height: 30px;
-          border: 2px solid red;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 1001;
-        }
-        #coords {
-          position: fixed;
-          bottom: 20px;
-          left: 20px;
-          background: rgba(0, 0, 0, 0.8);
-          color: white;
-          padding: 10px 15px;
-          border-radius: 5px;
-          font-family: monospace;
-          font-size: 14px;
-          z-index: 1002;
-        }
-        #hint {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          color: white;
-          font-size: 20px;
-          text-align: center;
-          text-shadow: 0 0 10px rgba(0,0,0,0.8);
-          pointer-events: none;
-          z-index: 1001;
-        }
-      </style>
-    </head>
-    <body>
-      <div id="overlay"></div>
-      <div id="crosshair"></div>
-      <div id="coords">X: 0, Y: 0</div>
-      <div id="hint">点击选择位置 | ESC 退出</div>
-    </body>
-    <script>
-      console.log('[Picker Window] 脚本开始执行');
-      
-      const overlay = document.getElementById('overlay');
-      const crosshair = document.getElementById('crosshair');
-      const coords = document.getElementById('coords');
+  // 加载 picker 页面
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    pickerWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#/picker`)
+  } else {
+    pickerWindow.loadFile(join(__dirname, '../renderer/index.html'), { hash: '/picker' })
+  }
 
-      // 检查 pickerAPI 是否可用
-      function checkPickerAPI() {
-        console.log('[Picker Window] 检查 pickerAPI:', {
-          hasWindow: typeof window !== 'undefined',
-          hasPickerAPI: typeof window.pickerAPI !== 'undefined',
-          pickerAPIType: typeof window.pickerAPI,
-          hasSend: typeof window.pickerAPI?.send === 'function'
-        });
-        return window.pickerAPI && typeof window.pickerAPI.send === 'function';
-      }
-
-      // 等待 pickerAPI 可用
-      function waitForPickerAPI(callback, maxAttempts = 50) {
-        let attempts = 0;
-        const check = () => {
-          attempts++;
-          if (checkPickerAPI()) {
-            console.log('[Picker Window] pickerAPI 已可用，尝试次数:', attempts);
-            callback();
-          } else if (attempts < maxAttempts) {
-            setTimeout(check, 10);
-          } else {
-            console.error('[Picker Window] pickerAPI 等待超时，尝试次数:', attempts);
-          }
-        };
-        check();
-      }
-
-      // 初始化时检查
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-          console.log('[Picker Window] DOM 加载完成');
-          checkPickerAPI();
-        });
-      } else {
-        console.log('[Picker Window] DOM 已加载');
-        checkPickerAPI();
-      }
-
-      document.addEventListener('mousemove', (e) => {
-        crosshair.style.left = (e.clientX - 15) + 'px';
-        crosshair.style.top = (e.clientY - 15) + 'px';
-        coords.textContent = \`X: \${e.screenX}, Y: \${e.screenY}\`;
-      });
-
-      overlay.addEventListener('click', (e) => {
-        console.log('[Picker Window] 点击事件触发:', e.screenX, e.screenY);
-        e.preventDefault();
-        e.stopPropagation();
-        
-        waitForPickerAPI(() => {
-          try {
-            console.log('[Picker Window] 准备发送选点事件');
-            window.pickerAPI.send('picker-selected', { x: e.screenX, y: e.screenY });
-            console.log('[Picker Window] 选点事件已发送');
-          } catch (error) {
-            console.error('[Picker Window] 发送选点事件失败:', error);
-          }
-        });
-      }, true); // 使用捕获阶段
-
-      // ESC 键处理 - 使用多个事件监听器确保捕获
-      const handleKeyDown = (e) => {
-        console.log('[Picker Window] 按键事件:', e.key, e.keyCode, e.type);
-        if (e.key === 'Escape' || e.keyCode === 27) {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('[Picker Window] 检测到 ESC 键');
-          
-          waitForPickerAPI(() => {
-            try {
-              console.log('[Picker Window] 准备发送取消事件');
-              window.pickerAPI.send('picker-cancelled');
-              console.log('[Picker Window] 取消事件已发送');
-            } catch (error) {
-              console.error('[Picker Window] 发送取消事件失败:', error);
-            }
-          });
-        }
-      };
-
-      // 添加多个事件监听器确保能捕获到
-      window.addEventListener('keydown', handleKeyDown, true);
-      document.addEventListener('keydown', handleKeyDown, true);
-      overlay.addEventListener('keydown', handleKeyDown, true);
-      
-      console.log('[Picker Window] 事件监听器已设置');
-    </script>
-  </body>
-    </html>
-  `
-
-  pickerWindow.loadURL('data:text/html;charset=UTF-8,' + encodeURIComponent(html))
-  
   pickerWindow.once('ready-to-show', () => {
     pickerWindow?.show()
-    pickerWindow?.focus() // 确保窗口获得焦点以接收键盘事件
-    pickerWindow?.setAlwaysOnTop(true, 'screen-saver') // 确保窗口始终在最上层
-    
+    pickerWindow?.focus()
+    pickerWindow?.setAlwaysOnTop(true, 'screen-saver')
+
     // 在开发模式下打开开发者工具以便调试
-    if (is.dev) {
-      pickerWindow?.webContents.openDevTools({ mode: 'detach' })
-    }
+    // if (is.dev) {
+    //   pickerWindow?.webContents.openDevTools({ mode: 'detach' })
+    // }
   })
 }
 

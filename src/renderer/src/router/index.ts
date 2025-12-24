@@ -1,16 +1,24 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
+import pickerRoutes from './picker'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'MouseControl',
-    component: () => import('../views/MouseControl.vue')
+    component: () => import('../layouts/DefaultLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'MouseControl',
+        component: () => import('../views/MouseControl.vue')
+      },
+      {
+        path: 'about',
+        name: 'About',
+        component: () => import('../views/About.vue')
+      }
+    ]
   },
-  {
-    path: '/about',
-    name: 'About',
-    component: () => import('../views/About.vue')
-  }
+  ...pickerRoutes
 ]
 
 const router = createRouter({

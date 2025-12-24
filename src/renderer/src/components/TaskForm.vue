@@ -110,7 +110,11 @@ const handleSubmit = () => {
     <ScreenPointPicker
       :is-active="isPointPickerActive"
       @point-selected="handlePointPicked"
-      @cancel="() => { isPointPickerActive = false }"
+      @cancel="
+        () => {
+          isPointPickerActive = false
+        }
+      "
     />
 
     <form class="space-y-6" @submit.prevent="handleSubmit">
@@ -284,5 +288,3 @@ const handleSubmit = () => {
     </form>
   </div>
 </template>
-
-

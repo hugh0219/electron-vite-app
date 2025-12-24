@@ -124,24 +124,24 @@ const handleClearAllTasks = async () => {
 
             <button
               v-if="!showTaskForm"
-              @click="showTaskForm = true"
               class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2"
+              @click="showTaskForm = true"
             >
               ➕ 创建新任务
             </button>
 
             <button
-              @click="loadTasks"
               :disabled="isLoading"
               class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold disabled:bg-gray-400 flex items-center justify-center gap-2"
+              @click="loadTasks"
             >
               🔄 刷新任务
             </button>
 
             <button
-              @click="handleClearAllTasks"
               :disabled="isLoading || mouseStore.tasks.length === 0"
               class="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 flex items-center justify-center gap-2"
+              @click="handleClearAllTasks"
             >
               🗑️ 清空所有
             </button>
@@ -170,7 +170,9 @@ const handleClearAllTasks = async () => {
             </div>
 
             <!-- 提示 -->
-            <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded text-sm text-gray-700 mt-6">
+            <div
+              class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded text-sm text-gray-700 mt-6"
+            >
               <p class="font-semibold mb-2">💡 使用提示</p>
               <ul class="space-y-1 text-xs">
                 <li>✓ 点击"在屏幕上选择"按钮快速设置坐标</li>
@@ -188,7 +190,7 @@ const handleClearAllTasks = async () => {
             <h2 class="text-xl font-bold text-gray-900 mb-4">任务列表</h2>
             <TaskList
               :tasks="mouseStore.tasks"
-              :isLoading="isLoading"
+              :is-loading="isLoading"
               @delete="handleDeleteTask"
               @run="handleRunTask"
             />
@@ -198,6 +200,3 @@ const handleClearAllTasks = async () => {
     </div>
   </div>
 </template>
-
-
-

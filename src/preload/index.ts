@@ -13,6 +13,11 @@ const api = {
     getStatus: () => ipcRenderer.invoke('mouse:get-status'),
     getPosition: () => ipcRenderer.invoke('mouse:get-position'),
     openPicker: () => ipcRenderer.invoke('open-picker'),
+    // 新增：picker 窗口用来发送选点结果
+    sendPickedPoint: (point: { x: number; y: number }) =>
+      ipcRenderer.send('picker-selected', point),
+    sendPickerCancelled: () => ipcRenderer.send('picker-cancelled'),
+    // 原有：主窗口用来监听选点结果
     onPointPicked: (callback: (point: { x: number; y: number }) => void) => {
       ipcRenderer.on('point-picked', (_event, point) => callback(point))
     },

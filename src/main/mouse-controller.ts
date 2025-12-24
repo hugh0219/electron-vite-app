@@ -98,13 +98,13 @@ export class MouseController {
   ): Promise<void> {
     try {
       await this.moveToPosition(fromX, fromY, duration / 2)
-      
+
       // 按下鼠标左键
       await mouse.pressButton(Button.LEFT)
-      
+
       // 移动到目标位置
       await this.moveToPosition(toX, toY, duration / 2)
-      
+
       // 释放鼠标左键
       await mouse.releaseButton(Button.LEFT)
     } catch (error) {
@@ -119,14 +119,14 @@ export class MouseController {
   async scroll(x: number, y: number, scrollX: number, scrollY: number): Promise<void> {
     try {
       await mouse.setPosition({ x, y })
-      
+
       // 垂直滚动：向下滚动（正数）或向上滚动（负数）
       if (scrollY > 0) {
         await mouse.scrollDown(Math.abs(scrollY))
       } else if (scrollY < 0) {
         await mouse.scrollUp(Math.abs(scrollY))
       }
-      
+
       // 水平滚动：向右滚动（正数）或向左滚动（负数）
       if (scrollX > 0) {
         await mouse.scrollRight(Math.abs(scrollX))
