@@ -1,5 +1,4 @@
-import { mouse } from '@nut-tree/nut-js'
-import { Button } from '@nut-tree/shared'
+import { mouse, Button } from '@nut-tree/nut-js'
 
 export interface MouseTask {
   id: string
@@ -42,29 +41,36 @@ export class MouseController {
   async moveToPosition(x: number, y: number, duration: number = 500): Promise<void> {
     try {
       const currentPos = await mouse.getPosition()
+      console.log(
+        `[moveToPosition] 当前位置: (${currentPos.x}, ${currentPos.y}) -> 目标: (${x}, ${y})`
+      )
       const startX = currentPos.x
       const startY = currentPos.y
       const steps = Math.ceil(duration / 16) // 60fps
       let currentStep = 0
 
-      const moveStep = async () => {
-        currentStep++
-        const progress = currentStep / steps
-        const newX = Math.round(startX + (x - startX) * progress)
-        const newY = Math.round(startY + (y - startY) * progress)
+      return new Promise<void>((resolve) => {
+        const moveStep = async () => {
+          currentStep++
+          const progress = currentStep / steps
+          const newX = Math.round(startX + (x - startX) * progress)
+          const newY = Math.round(startY + (y - startY) * progress)
 
-        await mouse.setPosition({ x: newX, y: newY })
+          await mouse.setPosition({ x: newX, y: newY })
 
-        if (currentStep < steps) {
-          setTimeout(moveStep, 16)
-        } else {
-          await mouse.setPosition({ x, y })
+          if (currentStep < steps) {
+            setTimeout(moveStep, 16)
+          } else {
+            await mouse.setPosition({ x, y })
+            console.log(`[moveToPosition] ✅ 移动完成到: (${x}, ${y})`)
+            resolve()
+          }
         }
-      }
 
-      await moveStep()
+        moveStep()
+      })
     } catch (error) {
-      console.error('移动鼠标失败:', error)
+      console.error('[moveToPosition] ❌ 移动失败:', error)
       throw error
     }
   }
@@ -74,14 +80,69 @@ export class MouseController {
    */
   async click(button: 'left' | 'right' | 'middle' = 'left'): Promise<void> {
     try {
-      const buttonMap = {
-        left: Button.LEFT,
-        right: Button.RIGHT,
-        middle: Button.MIDDLE
+      console.log(`[click] 执行点击操作，按钮: ${button}`)
+
+      let buttonEnum
+      if (button === 'left') {
+        buttonEnum = Button.LEFT
+        console.log(`[click] 按钮值: LEFT (${buttonEnum})`)
+      } else if (button === 'right') {
+        buttonEnum = Button.RIGHT
+        console.log(`[click] 按钮值: RIGHT (${buttonEnum})`)
+      } else if (button === 'middle') {
+        buttonEnum = Button.MIDDLE
+        console.log(`[click] 按钮值: MIDDLE (${buttonEnum})`)
+      } else {
+        buttonEnum = Button.LEFT
       }
-      await mouse.click(buttonMap[button])
+
+      // 使用 press 和 release 方式而不是 click
+      console.log(`[click] 按下按钮...`)
+      await mouse.pressButton(buttonEnum)
+
+      console.log(`[click] 等待50ms...`)
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      console.log(`[click] 释放按钮...`)
+      await mouse.releaseButton(buttonEnum)
+
+      console.log(`[click] ✅ 点击 ${button} 按钮成功`)
     } catch (error) {
-      console.error('点击失败:', error)
+      console.error(`[click] ❌ 点击 ${button} 按钮失败:`, error)
+      throw error
+    }
+  }
+
+  /**
+   * 移动到指定位置后点击
+   */
+  async moveAndClick(
+    x: number,
+    y: number,
+    button: 'left' | 'right' | 'middle' = 'left',
+    duration: number = 500
+  ): Promise<void> {
+    try {
+      console.log(`[moveAndClick] 开始：移动到 (${x}, ${y}) 然后点击 ${button}`)
+
+      // 先移动到指定位置
+      console.log(`[moveAndClick] 步骤1: 正在移动到目标位置...`)
+      await this.moveToPosition(x, y, duration)
+      console.log(`[moveAndClick] 步骤1: ✅ 移动完成`)
+
+      // 添加小延迟以确保稳定
+      console.log(`[moveAndClick] 步骤2: 等待100ms...`)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      console.log(`[moveAndClick] 步骤2: ✅ 等待完成`)
+
+      // 然后点击
+      console.log(`[moveAndClick] 步骤3: 正在执行点击...`)
+      await this.click(button)
+      console.log(`[moveAndClick] 步骤3: ✅ 点击完成`)
+
+      console.log(`[moveAndClick] ✅ 所有步骤完成`)
+    } catch (error) {
+      console.error(`[moveAndClick] ❌ 失败:`, error)
       throw error
     }
   }
@@ -199,6 +260,7 @@ export class MouseController {
     try {
       task.status = 'executing'
       this.activeTask = id
+      console.log(`开始执行任务: ${id}, 动作: ${task.action}, 位置: (${task.x}, ${task.y})`)
 
       // 执行延迟
       if (task.delay) {
@@ -211,7 +273,9 @@ export class MouseController {
           await this.moveToPosition(task.x, task.y)
           break
         case 'click':
-          await this.click(task.button)
+          // 移动到指定位置后点击
+          console.log(`执行点击任务，按钮: ${task.button || 'left'}`)
+          await this.moveAndClick(task.x, task.y, task.button || 'left')
           break
         case 'drag':
           if (task.targetX !== undefined && task.targetY !== undefined) {
@@ -224,9 +288,11 @@ export class MouseController {
       }
 
       task.status = 'completed'
+      console.log(`任务执行完成: ${id}`)
     } catch (error) {
       task.status = 'failed'
       task.error = error instanceof Error ? error.message : '未知错误'
+      console.error(`任务执行失败: ${id}, 错误: ${task.error}`)
       throw error
     } finally {
       this.activeTask = null
