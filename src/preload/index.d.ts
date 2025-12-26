@@ -39,6 +39,8 @@ declare global {
         onPointPicked: (callback: (point: { x: number; y: number }) => void) => void
         onPickerCancelled: (callback: () => void) => void
         removePointPickedListener: () => void
+        sendPickedPoint: (point: { x: number; y: number }) => void
+        sendPickerCancelled: () => void
       }
     }
   }

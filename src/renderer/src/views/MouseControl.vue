@@ -11,9 +11,14 @@ const refreshInterval = ref<number | null>(null)
 
 onMounted(async () => {
   await loadTasks()
-  // 每秒刷新一次任务状态
+  // 每秒刷新一次任务状态和列表
   refreshInterval.value = window.setInterval(async () => {
-    await mouseStore.refreshStatus()
+    try {
+      await mouseStore.getTasks()
+      await mouseStore.refreshStatus()
+    } catch (error) {
+      console.error('刷新失败:', error)
+    }
   }, 1000)
 })
 
@@ -21,7 +26,12 @@ onMounted(async () => {
 watch(showTaskForm, (newVal) => {
   if (!newVal && !refreshInterval.value) {
     refreshInterval.value = window.setInterval(async () => {
-      await mouseStore.refreshStatus()
+      try {
+        await mouseStore.getTasks()
+        await mouseStore.refreshStatus()
+      } catch (error) {
+        console.error('刷新失败:', error)
+      }
     }, 1000)
   }
 })
@@ -62,6 +72,9 @@ const handleRunTask = async (id: string) => {
   isLoading.value = true
   try {
     await mouseStore.runTask(id)
+    // 任务执行后立即重新加载任务列表，确保状态更新
+    await mouseStore.getTasks()
+    await mouseStore.refreshStatus()
   } catch (error) {
     console.error('执行任务失败:', error)
   } finally {
