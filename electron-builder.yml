@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: auto-control-app
+productName: electron-vite-app
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: auto-control-app
+  executableName: electron-vite-app
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
