@@ -36,11 +36,20 @@ declare global {
         }>
         getPosition: () => Promise<{ x: number; y: number }>
         openPicker: () => Promise<void>
+        sendPickedPoint: (point: { x: number; y: number }) => void
+        sendPickerCancelled: () => void
         onPointPicked: (callback: (point: { x: number; y: number }) => void) => void
         onPickerCancelled: (callback: () => void) => void
         removePointPickedListener: () => void
-        sendPickedPoint: (point: { x: number; y: number }) => void
-        sendPickerCancelled: () => void
+      }
+      storage: {
+        getLocation: () => Promise<string>
+        selectLocation: () => Promise<{
+          success: boolean
+          path?: string
+          canceled?: boolean
+          error?: string
+        }>
       }
     }
   }

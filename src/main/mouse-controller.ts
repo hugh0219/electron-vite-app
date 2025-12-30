@@ -1,4 +1,5 @@
 import { mouse, Button } from '@nut-tree/nut-js'
+import { storageManager } from './storage'
 
 export interface MouseTask {
   id: string
@@ -21,6 +22,92 @@ export class MouseController {
   private tasks: Map<string, MouseTask> = new Map()
   private activeTask: string | null = null
   private timers: Map<string, NodeJS.Timeout> = new Map()
+  private saveTimer: NodeJS.Timeout | null = null
+  private isDirty: boolean = false
+
+  /**
+   * 初始化控制器：加载持久化数据
+   */
+  async initialize(): Promise<void> {
+    try {
+      const savedTasks = await storageManager.loadTasks()
+
+      // 加载所有状态的任务（pending, executing, completed, failed）
+      // 用户可以自己选择删除
+      let pendingCount = 0
+      let completedCount = 0
+      let failedCount = 0
+
+      savedTasks.forEach((task) => {
+        // 保留原始状态加载任务
+        this.tasks.set(task.id, task)
+
+        // 统计不同状态的任务
+        if (task.status === 'pending' || task.status === 'executing') {
+          pendingCount++
+          // 恢复定时任务（只对待执行任务）
+          if (task.scheduledTime) {
+            this.scheduleTask(task.id, task.scheduledTime)
+          }
+        } else if (task.status === 'completed') {
+          completedCount++
+        } else if (task.status === 'failed') {
+          failedCount++
+        }
+      })
+
+      console.log(
+        `[MouseController] ✅ 已加载 ${this.tasks.size} 个任务 (待执行: ${pendingCount}, 已完成: ${completedCount}, 失败: ${failedCount})`
+      )
+
+      // 启动自动保存定时器
+      this.startAutoSave()
+    } catch (error) {
+      console.error('[MouseController] ❌ 初始化失败:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 标记数据为需要保存
+   */
+  private markDirty(): void {
+    this.isDirty = true
+  }
+
+  /**
+   * 启动自动保存定时器（每 2 秒保存一次）
+   */
+  private startAutoSave(): void {
+    this.saveTimer = setInterval(async () => {
+      if (this.isDirty) {
+        try {
+          await this.save()
+          this.isDirty = false
+        } catch (error) {
+          console.error('[MouseController] 自动保存失败:', error)
+        }
+      }
+    }, 2000)
+  }
+
+  /**
+   * 停止自动保存
+   */
+  stopAutoSave(): void {
+    if (this.saveTimer) {
+      clearInterval(this.saveTimer)
+      this.saveTimer = null
+    }
+  }
+
+  /**
+   * 立即保存所有任务
+   */
+  async save(): Promise<void> {
+    const tasks = Array.from(this.tasks.values())
+    await storageManager.saveTasks(tasks)
+  }
 
   /**
    * 获取当前全局鼠标位置（屏幕坐标）
@@ -213,6 +300,7 @@ export class MouseController {
     }
 
     this.tasks.set(id, newTask)
+    this.markDirty()
 
     // 如果有定时时间，则启用定时器
     if (task.scheduledTime) {
@@ -245,7 +333,11 @@ export class MouseController {
       clearTimeout(timer)
       this.timers.delete(id)
     }
-    return this.tasks.delete(id)
+    const result = this.tasks.delete(id)
+    if (result) {
+      this.markDirty()
+    }
+    return result
   }
 
   /**
@@ -335,6 +427,7 @@ export class MouseController {
     this.timers.clear()
     this.tasks.clear()
     this.activeTask = null
+    this.markDirty()
   }
 
   /**

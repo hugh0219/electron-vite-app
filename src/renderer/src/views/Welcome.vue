@@ -27,25 +27,29 @@ const goToAbout = () => {
       <!-- Main Content -->
       <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
         <div class="text-gray-700 text-center mb-8">
-          <p class="text-xl mb-4">
-            一个强大的自动化工具，让您轻松控制鼠标操作
-          </p>
+          <p class="text-xl mb-4">一个强大的自动化工具，让您轻松控制鼠标操作</p>
           <p class="text-gray-600">支持移动、点击、拖拽、滚动等多种操作模式</p>
         </div>
 
         <!-- Features Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 text-center border-2 border-blue-200">
+          <div
+            class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 text-center border-2 border-blue-200"
+          >
             <div class="text-4xl mb-3">🎯</div>
             <h3 class="font-bold text-lg mb-2 text-gray-900">屏幕选点</h3>
             <p class="text-gray-600 text-sm">直接在屏幕上选择目标位置，无需手动输入坐标</p>
           </div>
-          <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 text-center border-2 border-green-200">
+          <div
+            class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 text-center border-2 border-green-200"
+          >
             <div class="text-4xl mb-3">⏰</div>
             <h3 class="font-bold text-lg mb-2 text-gray-900">定时执行</h3>
             <p class="text-gray-600 text-sm">支持定时任务，可在指定时间自动执行操作</p>
           </div>
-          <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 text-center border-2 border-purple-200">
+          <div
+            class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 text-center border-2 border-purple-200"
+          >
             <div class="text-4xl mb-3">📋</div>
             <h3 class="font-bold text-lg mb-2 text-gray-900">任务管理</h3>
             <p class="text-gray-600 text-sm">记录所有操作任务，随时查看执行状态和历史</p>
@@ -94,14 +98,14 @@ const goToAbout = () => {
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-4">
           <button
-            @click="goToMouseControl"
             class="flex-1 px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center font-bold text-lg"
+            @click="goToMouseControl"
           >
             🚀 开始使用
           </button>
           <button
-            @click="goToAbout"
             class="flex-1 px-6 py-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-center font-bold text-lg"
+            @click="goToAbout"
           >
             ℹ️ 了解更多
           </button>
@@ -111,7 +115,8 @@ const goToAbout = () => {
       <!-- Info Box -->
       <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
         <p class="text-sm text-gray-700">
-          💡 <strong>提示：</strong> 首次使用请查看应用设置和使用说明。按 <code class="bg-gray-200 px-2 py-1 rounded">F12</code> 可打开开发者工具
+          💡 <strong>提示：</strong> 首次使用请查看应用设置和使用说明。按
+          <code class="bg-gray-200 px-2 py-1 rounded">F12</code> 可打开开发者工具
         </p>
       </div>
     </div>
@@ -128,6 +133,3 @@ const goToAbout = () => {
   opacity: 1;
 }
 </style>
-
-
-

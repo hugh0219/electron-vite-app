@@ -11,18 +11,21 @@
 ## ✨ 核心功能
 
 ### 🎯 鼠标操作
+
 - **移动鼠标** - 平滑移动到指定屏幕坐标
 - **点击操作** - 支持左键、右键、中键
 - **拖拽操作** - 从一个位置拖拽到另一个位置
 - **滚动操作** - 水平和垂直滚动
 
 ### 📋 任务管理
+
 - **屏幕选点** - 直接在屏幕上点击选择坐标
 - **定时执行** - 在指定日期和时间自动运行
 - **延迟执行** - 设置任务执行延迟时间
 - **状态跟踪** - 实时显示任务执行状态
 
 ### 🎨 用户界面
+
 - **响应式设计** - 适配各种屏幕尺寸
 - **现代化 UI** - 使用 Tailwind CSS 构建
 - **实时统计** - 任务数量和状态统计
@@ -31,35 +34,39 @@
 ## 🚀 快速开始
 
 ### 1️⃣ 安装依赖
+
 ```bash
 npm install
 ```
 
 ### 2️⃣ 启动开发服务器
+
 ```bash
 npm run dev
 ```
 
 ### 3️⃣ 创建第一个任务
+
 1. 点击"➕ 创建新任务"
 2. 选择操作类型（如"移动鼠标"）
 3. 使用"🎯 在屏幕上选择"选点
 4. 点击"创建任务"
 
 ### 4️⃣ 运行任务
+
 点击任务右侧的"运行"按钮立即执行
 
 > 详见 [QUICK_START.md](./QUICK_START.md) 获取更多详细信息
 
 ## 📚 完整文档
 
-| 文档 | 描述 |
-|------|------|
-| [QUICK_START.md](./QUICK_START.md) | 5分钟快速上手指南 |
-| [SETUP_GUIDE.md](./SETUP_GUIDE.md) | 详细的安装和配置指南 |
-| [MOUSE_CONTROL_GUIDE.md](./MOUSE_CONTROL_GUIDE.md) | 功能使用说明文档 |
-| [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) | 技术实现细节说明 |
-| [TESTING_GUIDE.md](./TESTING_GUIDE.md) | 测试和演示场景 |
+| 文档                                                     | 描述                 |
+| -------------------------------------------------------- | -------------------- |
+| [QUICK_START.md](./QUICK_START.md)                       | 5分钟快速上手指南    |
+| [SETUP_GUIDE.md](./SETUP_GUIDE.md)                       | 详细的安装和配置指南 |
+| [MOUSE_CONTROL_GUIDE.md](./MOUSE_CONTROL_GUIDE.md)       | 功能使用说明文档     |
+| [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) | 技术实现细节说明     |
+| [TESTING_GUIDE.md](./TESTING_GUIDE.md)                   | 测试和演示场景       |
 
 ## 🛠️ 技术栈
 
@@ -104,6 +111,7 @@ src/
 ## 🎯 主要特性
 
 ### 屏幕选点系统
+
 直接在屏幕上点击选择坐标位置，无需手动输入
 
 ```typescript
@@ -115,19 +123,22 @@ src/
 ```
 
 ### 定时任务调度
+
 在指定日期和时间自动执行任务
 
 ```typescript
 // 创建定时任务
 const task = await mouseStore.addTask({
   action: 'click',
-  x: 100, y: 100,
+  x: 100,
+  y: 100,
   scheduledTime: new Date('2024-01-01 10:00:00').getTime()
 })
 // 应用在指定时间自动执行
 ```
 
 ### 任务状态管理
+
 完整的任务生命周期管理
 
 ```
@@ -172,12 +183,14 @@ const task = await mouseStore.addTask({
 ## 🔧 脚本命令
 
 ### 开发命令
+
 ```bash
 npm run dev              # 启动开发服务器
 npm run start            # 预览打包应用
 ```
 
 ### 构建命令
+
 ```bash
 npm run build            # 完整构建
 npm run build:win        # Windows 平台构建
@@ -186,6 +199,7 @@ npm run build:linux      # Linux 平台构建
 ```
 
 ### 质量检查
+
 ```bash
 npm run lint             # ESLint 代码检查
 npm run typecheck        # TypeScript 类型检查
@@ -195,16 +209,20 @@ npm run format           # Prettier 代码格式化
 ## ⚙️ 配置说明
 
 ### 开发环境要求
+
 - Node.js >= 14.0
 - npm >= 6.0 或 yarn
 
 ### 系统要求
+
 - Windows 10+
 - macOS 10.13+
 - Linux (Ubuntu 18.04+)
 
 ### Windows 特殊要求
+
 如果 robotjs 安装失败：
+
 1. 安装 Python 3（添加到 PATH）
 2. 安装 Visual Studio Build Tools 2022
 3. 重新运行 `npm install`
@@ -214,12 +232,15 @@ npm run format           # Prettier 代码格式化
 ## 🐛 常见问题
 
 ### Q: robotjs 编译失败
+
 **A:** 参考 SETUP_GUIDE.md 中的故障排除部分
 
 ### Q: 鼠标控制无效
+
 **A:** 确保目标坐标在屏幕范围内，检查应用权限
 
 ### Q: 定时任务不执行
+
 **A:** 检查系统时间和日期设置，确保任务时间未过期
 
 更多 FAQ 见 [MOUSE_CONTROL_GUIDE.md](./MOUSE_CONTROL_GUIDE.md)
@@ -227,6 +248,7 @@ npm run format           # Prettier 代码格式化
 ## 🧪 测试和演示
 
 参考 [TESTING_GUIDE.md](./TESTING_GUIDE.md) 获取：
+
 - 完整的测试场景
 - 功能验收标准
 - 演示用例

@@ -13,11 +13,11 @@ const api = {
     getStatus: () => ipcRenderer.invoke('mouse:get-status'),
     getPosition: () => ipcRenderer.invoke('mouse:get-position'),
     openPicker: () => ipcRenderer.invoke('open-picker'),
-    // 新增：picker 窗口用来发送选点结果
+    // Picker 窗口发送选点结果
     sendPickedPoint: (point: { x: number; y: number }) =>
       ipcRenderer.send('picker-selected', point),
     sendPickerCancelled: () => ipcRenderer.send('picker-cancelled'),
-    // 原有：主窗口用来监听选点结果
+    // 主窗口监听选点结果
     onPointPicked: (callback: (point: { x: number; y: number }) => void) => {
       ipcRenderer.on('point-picked', (_event, point) => callback(point))
     },
@@ -28,6 +28,11 @@ const api = {
       ipcRenderer.removeAllListeners('point-picked')
       ipcRenderer.removeAllListeners('picker-cancelled')
     }
+  },
+  // 存储配置 API
+  storage: {
+    getLocation: () => ipcRenderer.invoke('storage:get-location'),
+    selectLocation: () => ipcRenderer.invoke('storage:select-location')
   }
 }
 
@@ -42,9 +47,17 @@ if (process.contextIsolated) {
     console.log('[Preload] API exposed:', {
       hasApi: !!api,
       hasMouse: !!api.mouse,
+      hasAddTask: typeof api.mouse.addTask === 'function',
+      hasGetTasks: typeof api.mouse.getTasks === 'function',
       hasOpenPicker: typeof api.mouse.openPicker === 'function',
       hasOnPointPicked: typeof api.mouse.onPointPicked === 'function',
-      hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function'
+      hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function',
+      hasRemovePointPickedListener: typeof api.mouse.removePointPickedListener === 'function',
+      hasSendPickedPoint: typeof api.mouse.sendPickedPoint === 'function',
+      hasSendPickerCancelled: typeof api.mouse.sendPickerCancelled === 'function',
+      hasStorage: !!api.storage,
+      hasGetLocation: typeof api.storage.getLocation === 'function',
+      hasSelectLocation: typeof api.storage.selectLocation === 'function'
     })
   } catch (error) {
     console.error('[Preload] Error exposing API:', error)
@@ -58,8 +71,16 @@ if (process.contextIsolated) {
   console.log('[Preload] API exposed (non-isolated):', {
     hasApi: !!api,
     hasMouse: !!api.mouse,
+    hasAddTask: typeof api.mouse.addTask === 'function',
+    hasGetTasks: typeof api.mouse.getTasks === 'function',
     hasOpenPicker: typeof api.mouse.openPicker === 'function',
     hasOnPointPicked: typeof api.mouse.onPointPicked === 'function',
-    hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function'
+    hasOnPickerCancelled: typeof api.mouse.onPickerCancelled === 'function',
+    hasRemovePointPickedListener: typeof api.mouse.removePointPickedListener === 'function',
+    hasSendPickedPoint: typeof api.mouse.sendPickedPoint === 'function',
+    hasSendPickerCancelled: typeof api.mouse.sendPickerCancelled === 'function',
+    hasStorage: !!api.storage,
+    hasGetLocation: typeof api.storage.getLocation === 'function',
+    hasSelectLocation: typeof api.storage.selectLocation === 'function'
   })
 }

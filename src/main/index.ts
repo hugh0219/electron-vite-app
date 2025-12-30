@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, screen, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { mouseController } from './mouse-controller'
+import { storageManager } from './storage'
 
 let mainWindow: BrowserWindow | null = null
 let pickerWindow: BrowserWindow | null = null
@@ -84,7 +85,16 @@ function createPickerWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // 初始化数据存储和鼠标控制器
+  try {
+    await storageManager.initialize()
+    await mouseController.initialize()
+    console.log('[Main] ✅ 数据持久化已初始化')
+  } catch (error) {
+    console.error('[Main] ❌ 初始化失败:', error)
+  }
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -97,6 +107,31 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // 存储位置管理
+  ipcMain.handle('storage:get-location', () => {
+    return storageManager.getStorageLocation()
+  })
+
+  ipcMain.handle('storage:select-location', async () => {
+    const result = await dialog.showOpenDialog(mainWindow!, {
+      properties: ['openDirectory'],
+      title: '选择数据存储位置',
+      defaultPath: storageManager.getStorageLocation()
+    })
+
+    if (!result.canceled && result.filePaths.length > 0) {
+      const selectedPath = result.filePaths[0]
+      try {
+        await storageManager.setStorageLocation(selectedPath)
+        return { success: true, path: selectedPath }
+      } catch (error) {
+        return { success: false, error: (error as Error).message }
+      }
+    }
+
+    return { success: false, canceled: true }
+  })
 
   // 鼠标控制 IPC 处理
   ipcMain.handle('mouse:add-task', (_event, task) => {
@@ -176,7 +211,16 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
+  // 应用关闭前保存所有数据
+  try {
+    mouseController.stopAutoSave()
+    await mouseController.save()
+    console.log('[Main] ✅ 应用关闭前已保存数据')
+  } catch (error) {
+    console.error('[Main] ❌ 保存数据失败:', error)
+  }
+
   if (process.platform !== 'darwin') {
     app.quit()
   }

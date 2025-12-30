@@ -33,6 +33,15 @@ const isActive = (name: string) => {
             <button
               :class="[
                 'px-4 py-2 rounded transition',
+                isActive('Settings') ? 'bg-white text-indigo-600 font-bold' : 'hover:bg-indigo-500'
+              ]"
+              @click="router.push('/settings')"
+            >
+              ⚙️ 设置
+            </button>
+            <button
+              :class="[
+                'px-4 py-2 rounded transition',
                 isActive('About') ? 'bg-white text-indigo-600 font-bold' : 'hover:bg-indigo-500'
               ]"
               @click="router.push('/about')"

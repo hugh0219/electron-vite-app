@@ -42,7 +42,11 @@ const formatTime = (timestamp: number) => {
       <p class="text-lg">暂无任务</p>
     </div>
 
-    <div v-for="task in tasks" :key="task.id" class="bg-white rounded-lg shadow p-4 hover:shadow-lg transition">
+    <div
+      v-for="task in tasks"
+      :key="task.id"
+      class="bg-white rounded-lg shadow p-4 hover:shadow-lg transition"
+    >
       <div class="flex items-start justify-between">
         <!-- 任务信息 -->
         <div class="flex-1">
@@ -50,7 +54,13 @@ const formatTime = (timestamp: number) => {
             <h3 class="font-semibold text-gray-900">
               {{ task.description || `${getActionLabel(task.action)} - (${task.x}, ${task.y})` }}
             </h3>
-            <span :class="[getStatusBadge(task.status).bg, getStatusBadge(task.status).text, 'px-2 py-1 rounded text-xs font-medium']">
+            <span
+              :class="[
+                getStatusBadge(task.status).bg,
+                getStatusBadge(task.status).text,
+                'px-2 py-1 rounded text-xs font-medium'
+              ]"
+            >
               {{ getStatusBadge(task.status).label }}
             </span>
           </div>
@@ -117,6 +127,3 @@ const formatTime = (timestamp: number) => {
     </div>
   </div>
 </template>
-
-
-

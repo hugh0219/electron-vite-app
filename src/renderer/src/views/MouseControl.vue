@@ -3,36 +3,48 @@ import { ref, onMounted, watch } from 'vue'
 import { useMouseStore, type MouseTask } from '@renderer/stores/mouse'
 import TaskForm from '@renderer/components/TaskForm.vue'
 import TaskList from '@renderer/components/TaskList.vue'
+import StorageWizard from '@renderer/components/StorageWizard.vue'
 
 const mouseStore = useMouseStore()
 const showTaskForm = ref(false)
 const isLoading = ref(false)
 const refreshInterval = ref<number | null>(null)
+const showWizard = ref(false)
 
 onMounted(async () => {
+  // 检查是否已经完成过存储位置向导
+  const wizardCompleted = localStorage.getItem('storage-wizard-completed')
+  if (!wizardCompleted) {
+    showWizard.value = true
+  }
+
   await loadTasks()
-  // 每秒刷新一次任务状态和列表
+  // 每 2 秒刷新一次任务状态（而不是每秒）
+  // 因为主进程已经实现了数据持久化和自动保存
   refreshInterval.value = window.setInterval(async () => {
     try {
-      await mouseStore.getTasks()
       await mouseStore.refreshStatus()
     } catch (error) {
-      console.error('刷新失败:', error)
+      console.error('刷新状态失败:', error)
     }
-  }, 1000)
+  }, 2000)
 })
+
+const handleWizardComplete = () => {
+  showWizard.value = false
+  localStorage.setItem('storage-wizard-completed', 'true')
+}
 
 // 清理定时器
 watch(showTaskForm, (newVal) => {
   if (!newVal && !refreshInterval.value) {
     refreshInterval.value = window.setInterval(async () => {
       try {
-        await mouseStore.getTasks()
         await mouseStore.refreshStatus()
       } catch (error) {
-        console.error('刷新失败:', error)
+        console.error('刷新状态失败:', error)
       }
-    }, 1000)
+    }, 2000)
   }
 })
 
@@ -72,8 +84,7 @@ const handleRunTask = async (id: string) => {
   isLoading.value = true
   try {
     await mouseStore.runTask(id)
-    // 任务执行后立即重新加载任务列表，确保状态更新
-    await mouseStore.getTasks()
+    // 任务执行后刷新状态（不需要重新加载整个任务列表）
     await mouseStore.refreshStatus()
   } catch (error) {
     console.error('执行任务失败:', error)
@@ -95,6 +106,7 @@ const handleClearAllTasks = async () => {
 </script>
 
 <template>
+  <StorageWizard v-if="showWizard" @complete="handleWizardComplete" />
   <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
     <div class="max-w-6xl mx-auto">
       <!-- 头部 -->
