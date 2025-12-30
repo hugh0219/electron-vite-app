@@ -5,12 +5,11 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   main: {},
   preload: {
-    // 配置多个预加载文件入口
+    // 配置预加载文件入口
     build: {
       rollupOptions: {
         input: {
-          index: resolve(__dirname, 'src/preload/index.ts'),
-          picker: resolve(__dirname, 'src/preload/picker.ts')
+          index: resolve(__dirname, 'src/preload/index.ts')
         },
         output: {
           format: 'cjs',
